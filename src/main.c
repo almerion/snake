@@ -6,32 +6,36 @@
 
 typedef struct food_position {
 
-  int food_height;
-  int food_width;
+  int height;
+  int width;
 }FOOD_POSITION;
   
 typedef struct snake_position {
 
-  int snake_height;
-  int snake_width;
+  int height;
+  int width;
   int num_body;
 } SNAKE_POSITION;
 
+typedef struct terminal_border {
+
+  int height;
+  int width;
+} TERM_BORDER;
 
 int rand_number(int min_num, int max_num);
 void add_body(WINDOW *win, int position_height, int position_width);
 
 int main()
 {
-  int width, height; /* holds the screen border's values. */
-  int ch, i, k, score;
-  int gawi_height, gawi_width;
-  int sstart_height, sstart_width;
-  int fstart_height, fstart_width;
+
+  int ch, i, k;
   int cur_height1, cur_height2, cur_width1, cur_width2;
+  SNAKE_POSITION *s_position;
+  FOOD_POSITION *f_position;
   WINDOW *score_box_win, *game_win;
 
-  int num_body = 2;
+  s_position->num_body = 2;
   initscr();
   cbreak(); /* pass everthing immediatelly */
   keypad(stdscr, TRUE); /* when player press the keys we need to know that keys */ 
@@ -49,22 +53,18 @@ int main()
   while ((ch = getch() == KEY_F(1))) { 
     i = 0;
     k = 0;
-    while (i == hight && k == width)
+    while (i == height && k == width)
       {
 	clear();
 	/* start the game */
-	create_snake(stdscr, );
-	mvprintw(sstart_height + i, sstart_width, "x");
-	mvprintw((sstart_height + i) + 1, sstart_width, "x");
-	mvprintw((sstart_height + i) + 2, sstart_width, "$");
+	create_snake(stdscr, s_position, height, width, i);
+	create_food(stdscr, f_position, height, width);
 	refresh();
-	  
-	create_food(stdscr, height, width);
 
-	cur_height1 = (sstart_height + i) + 1;
-	cur_height2 = (sstart_height + i) + 2;
-	cur_width1 = (sstart_width + k) + 1;
-	cur_width2 = (sstart_height + k) + 2;
+	cur_height1 = (s_position->height + i) + 1;
+	cur_height2 = (s_position->height + i) + 2;
+	cur_width1 = (s_position->width + k) + 1;
+	cur_width2 = (s_postion->width + k) + 2;
 
 	if (cur_height2 - cur_height1 > cur_width2 - cur_width1)
 	  {
@@ -123,36 +123,29 @@ int rand_number(int min_num, int max_num)
   return rand_num;
 }
 
-int create_snake_height(int height)
+int create_snake(WINDOW *win, SNAKE_POSITION *s_position, int height, int width, int cnt)
 {
-  snake_height = rand_number(0, height);
-  return snake_height;
+  int i;
+  s_position->height = rand_number(0, height);
+  s_position->width = rand_number(0, width);
+  
+  for (i = 0; i <= s_position->num_body; i++)
+    mvwprintw(win, (win, s_position->height + i), s_position->width, "x");
+  mvwprintw(win, (win, s_position->height + i) + 1, s_position_width, "$");
+
+  return s_position;
 }
 
-int create_snake_width(int width)
-{
-  snake_width = rand_number(0, width);
-  return snake_width;
-}
-
-void create_head(WINDOW *win, int height, int width)
-{
-  mvwprint(win, height);
-}
 
 /* create_food(): initialize random height and width
  * and print the food in initialized position.
  */
-void create_food(WINDOW *win, int height, int width) 
+void create_food(WINDOW *win, FOOD_POSITION *f_position, int height, int width)
 {
-  int food_height = 0;
-  int food_width = 0;
+  f_position->height = rand_num(0, height);
+  f_position->width = rand_num(0, width);
   
-  food_height = rand_num(0, height);
-  food_width = rand_num(0, width);
-
-  mvwprintw(win, food_height, food_width);
-  wrefresh(stdscr);
+  return f_position;
 }
 
 /* game_over(): this function finishes the game as showing 
@@ -177,14 +170,15 @@ void add_body(WINDOW *win, int snake_height, int snake_width, int num_body)
   wrefresh(win);
 }
 
-void turn_left(WINDOW *win, int height, int width)
+/* turn_left(): it turns the body of snake to left */
+void turn_left(WINDOW *win, SNAKE_POSITION *s_position, int height, int width)
 {
   int i = 0;
   int k = 0;
-
-  while (i < height && k < width)
+  while ()
     {
-      mvwprintw(win, "");
+      mvwprintw(win, s_position->height - 1, s_position->width + k, "-");
+      
     }
 }
 
