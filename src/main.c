@@ -4,13 +4,19 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int food_height;
-int food_width;
+typedef struct food_position {
 
-int snake_height;
-int snake_width;
+  int food_height;
+  int food_width;
+}FOOD_POSITION;
+  
+typedef struct snake_position {
 
-int num_body;
+  int snake_height;
+  int snake_width;
+  int num_body;
+} SNAKE_POSITION;
+
 
 int rand_number(int min_num, int max_num);
 void add_body(WINDOW *win, int position_height, int position_width);
