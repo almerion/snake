@@ -61,20 +61,32 @@ int main()
   cbreak(); /* pass everthing immediatelly */
   keypad(stdscr, true); /* when player press the keys we need to know that keys */ 
   noecho();
-  curs_set(true);
+  curs_set(false);
 
-  getmaxyx(stdscr, sp_position->height, sp_position->width); /* take the screen borders */
+  getmaxyx(stdscr, tp_border->height, tp_border->width); /* take the screen borders */
   
   scp->score = 0;
   create_food(stdscr, tp_border, fp_position);
-  while ((ch = getch() == KEY_F(1))) { 
+
+  mvprintw(0, 0, "term height : %d ", tp_border->height);
+  mvprintw(1, 0, "term width : %d ", tp_border->width);
+
+  create_body(stdscr, sp_position, tp_border, prev);
+  print_food(stdscr, fp_position);
+
+  mvaddch(2, 0, ACS_BLOCK);
+  mvaddch(3, 0, ACS_DIAMOND);
+  
+  mvprintw(4, 0, "snake height: %d",sp_position->height);
+  mvprintw(5, 0, "snake width: %d", sp_position->width);
+  refresh();
+  getch();
+
+  while ((ch = getch())) { 
     {
       clear();
       /* start the game */
-      create_body(stdscr,sp_position, tp_border, prev);
-      print_food(stdscr, fp_position);
       refresh();
-      
       switch (ch)
 	{
 	case KEY_LEFT:
@@ -121,6 +133,9 @@ SNAKE_POSITION* create_body(WINDOW *win, SNAKE_POSITION *sp_position, TERM_BORDE
 {
   int i = sp_position->num_body;
   
+  sp_position->height = rand_number(0, tp_border->height);
+  sp_position->width = rand_number(0, tp_border->width);
+
   while (i)
     {
       switch (dir)
