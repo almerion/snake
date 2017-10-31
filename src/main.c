@@ -65,13 +65,16 @@ int main()
 
   getmaxyx(stdscr, tp_border->height, tp_border->width); /* take the screen borders */
   
+  sp_position->height = rand_number(0, tp_border->height);
+  sp_position->width = rand_number(0, tp_border->width);
+
   scp->score = 0;
   while ((ch = getch())) { 
     {
+      clear();
       create_food(stdscr, tp_border, fp_position);
       create_body(stdscr, sp_position, tp_border, prev);
       print_food(stdscr, fp_position);
-      clear();
       /* start the game */
       refresh();
       switch (ch)
@@ -96,7 +99,6 @@ int main()
 	  prev = prev;
 	} 
       usleep(DELAY);
-      create_body(stdscr, sp_position, tp_border, prev);
     }
   }
   
@@ -120,9 +122,6 @@ SNAKE_POSITION* create_body(WINDOW *win, SNAKE_POSITION *sp_position, TERM_BORDE
 {
   int i = sp_position->num_body;
   
-  sp_position->height = rand_number(0, tp_border->height);
-  sp_position->width = rand_number(0, tp_border->width);
-
   while (i)
     {
       switch (dir)
