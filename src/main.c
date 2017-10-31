@@ -4,14 +4,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-enum direction { UP, DOWN, LEFT, RIGTH};
+enum direction { UP, DOWN, LEFT, RIGHT};
 enum status {SUCCESS, FAILURE };
-
-typedef struct flag {
-
-  bool vertical;
-  bool horizontal;
-}FLAG;
 
 typedef struct food_position {
 
@@ -39,7 +33,10 @@ typedef struct _score {
 
 int rand_number(int min_num, int max_num);
 void add_body(WINDOW *win, int position_height, int position_width);
-SNAKE_POSITION* create_body(WINDOW *win, SNAKE_POSITION *sp_position, TERM_BORDER *tp_border, FLAG *pflag)
+SNAKE_POSITION* create_body(WINDOW *win, SNAKE_POSITION *sp_position, TERM_BORDER *tp_border, enum direction dir);
+FOOD_POSITION* create_food(WINDOW *win, TERM_BORDER *tp_border, FOOD_POSITION *fp_position);
+void print_food(WINDOW *win, FOOD_POSITION *fp_position);
+void game_over(WINDOW *win, TERM_BORDER *tp_border, SCORE *scp);
 
 int main()
 {
@@ -49,15 +46,15 @@ int main()
   SNAKE_POSITION *sp_position, s_position;
   FOOD_POSITION *fp_position, f_position;
   TERM_BORDER *tp_border, t_border;
-  SCORE *scp, *sc;
+  SCORE *scp, sc;
   enum direction prev = DOWN;
 
   sp_position = &s_position;
   fp_position = &f_position;
   tp_border = &t_border;
-  scp = &sc
+  scp = &sc;
 
-  s_position->num_body = 2;
+  sp_position->num_body = 2;
   initscr();
   cbreak(); /* pass everthing immediatelly */
   keypad(stdscr, TRUE); /* when player press the keys we need to know that keys */ 
@@ -67,43 +64,41 @@ int main()
   getmaxyx(stdscr, sp_position->height, sp_position->width); /* take the screen borders */
   
   scp->score = 0;
+  create_food(stdscr, tp_border, fp_position);
   while ((ch = getch() == KEY_F(1))) { 
-    i = 0;
-    k = 0;
-    while (i == height && k == width)
-      {
-	clear();
-	/* start the game */
-	create_body(stdscr,sp_position, tp_border, );
-	create_food(stdscr, tp_border);
-	refresh();
-
-	switch (ch)
-	  {
-	  case KEY_LEFT:
-	    if (prev != RIGHT)
-	      prev = LEFT;
-
-	  case KEY_RIGHT:
-	    if (prev != LEFT)
-	      prev = RIGHT;
-
-	  case KEY_DOWN:
-	    if (prev != UP) 
-	      prev = DOWN;
-
-	  case KEY_UP:
-	    if (prev != DOWN)
-	      prev = UP;
-	
-	  default:
-	    prev = prev;
-	  } 
-	create_body(stdscr, sp_position, tp_border, prev);
-      }
+    {
+      clear();
+      /* start the game */
+      create_body(stdscr,sp_position, tp_border, prev);
+      print_food(stdscr, fp_position);
+      refresh();
+      
+      switch (ch)
+	{
+	case KEY_LEFT:
+	  if (prev != RIGHT)
+	    prev = LEFT;
+	  
+	case KEY_RIGHT:
+	  if (prev != LEFT)
+	    prev = RIGHT;
+	  
+	case KEY_DOWN:
+	  if (prev != UP) 
+	    prev = DOWN;
+	  
+	case KEY_UP:
+	  if (prev != DOWN)
+	    prev = UP;
+	  
+	default:
+	  prev = prev;
+	} 
+      create_body(stdscr, sp_position, tp_border, prev);
+    }
   }
-
-  game_over(stdscr, height, width, score);
+  
+  game_over(stdscr, tp_border, scp);
   while ((ch = getch() == 'q'))
     endwin();
 
@@ -121,18 +116,25 @@ int rand_number(int min_num, int max_num)
 
 SNAKE_POSITION* create_body(WINDOW *win, SNAKE_POSITION *sp_position, TERM_BORDER *tp_border, enum direction dir)
 {
-  int i, k;
-  if (prev)
+  int i = sp_position->num_body;
+  
+  while (i)
     {
-      for (i = 0; i <= sp_position->num_body; i++)
-	mvwaddch(win, sp_position->height + i, sp_position->width, '*');
-      mvwaddch(win, sp_position->height + i, sp_position->width, '$');
-    }
-  else
-    {
-      for (k = 0; i <= sp_position->numbody; k++)
-	mvwaddch(win, sp_position->height, sp_position->width + k, '*');
-      mvwaddch(win, sp_position->height, sp_position->width + k, '$');
+      switch (dir)
+	{
+	case LEFT:
+	  mvwaddch(win, sp_position->height--, sp_position->width, ACS_BLOCK);
+	case RIGHT:
+	  mvwaddch(win, sp_position->height++, sp_position->width, ACS_BLOCK);
+	case UP:
+	  mvwaddch(win, sp_position->height, sp_position->width--, ACS_BLOCK);
+	case DOWN:
+	  mvwaddch(win, sp_position->height, sp_position->width++, ACS_BLOCK);
+	default:
+	  mvwaddch(win, sp_position->height, sp_position->width, ACS_BLOCK);
+	}
+      i--;
+      wrefresh(win);
     }
 
   return sp_position;
@@ -141,71 +143,29 @@ SNAKE_POSITION* create_body(WINDOW *win, SNAKE_POSITION *sp_position, TERM_BORDE
 /* create_food(): initialize random height and width
  * and print the food in initialized position.
  */
-FOOD_POSITION* create_food(WINDOW *win, TERM_BORDER *tp_border)
+FOOD_POSITION* create_food(WINDOW *win, TERM_BORDER *tp_border, FOOD_POSITION *fp_position)
 {
-  fp_position->height = rand_num(0, tp_border->height);
-  fp_position->width = rand_num(0, tp_border->width);
+  fp_position->height = rand_number(0, tp_border->height);
+  fp_position->width = rand_number(0, tp_border->width);
 
   mvwaddch(win, fp_position->height, fp_position->width, ACS_DIAMOND);
   
   return fp_position;
 }
 
+void print_food(WINDOW *win, FOOD_POSITION *fp_position)
+{
+  mvwaddch(win, fp_position->height, fp_position->width, ACS_DIAMOND);
+}
+
 /* game_over(): this function finishes the game as showing 
  * score. */
-void game_over(WINDOW *win, int height, int width, int score)
+void game_over(WINDOW *win, TERM_BORDER *tp_border, SCORE *scp)
 {
   wclear(win);
   mvwprintw(win, 0, 0, "<press q to exit from the game>");
-  mvwprintw(win, height / 2, width / 2, "GAME OVER");
-  mvwprintw(win, (height / 2) + 1, width / 2, "Your score: %d", score);
+  mvwprintw(win, tp_border->height / 2, tp_border->width / 2, "GAME OVER");
+  mvwprintw(win, (tp_border->height / 2) + 1, tp_border->width / 2, "Your score: %d", scp->score);
 }
 
-/* add_body(): it takes the snake current positions
- * and number of vertical body parts. Adds a vertical
- * '|' char. */
-void add_body(WINDOW *win, int snake_height, int snake_width, int num_body)
-{
-  int i = 0;
-  for (; i <= num_body; i++)
-      mvwprintw(win, snake_height + i, snake_width, "|");
-  mvwprintw(win, (snake_height + i) + 1, snake_width, "$");
-  wrefresh(win);
-}
 
-/* turn_left(): it turns the body of snake to left */
-void turn_left(WINDOW *win, SNAKE_POSITION *s_position, int height, int width)
-{
-  int i = 0;
-  int k = 0;
-  while ()
-    {
-      mvwprintw(win, s_position->height - 1, s_position->width + k, "-");
-      
-    }
-}
-
-void turn_right()
-{
-
-}
-
-void turn_up()
-{
-
-}
-
-void turn_down()
-{
-
-}
-
-void hold_position()
-{
-
-}
-
-void start_moving()
-{
-
-}
