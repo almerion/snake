@@ -66,24 +66,11 @@ int main()
   getmaxyx(stdscr, tp_border->height, tp_border->width); /* take the screen borders */
   
   scp->score = 0;
-  create_food(stdscr, tp_border, fp_position);
-
-  mvprintw(0, 0, "term height : %d ", tp_border->height);
-  mvprintw(1, 0, "term width : %d ", tp_border->width);
-
-  create_body(stdscr, sp_position, tp_border, prev);
-  print_food(stdscr, fp_position);
-
-  mvaddch(2, 0, ACS_BLOCK);
-  mvaddch(3, 0, ACS_DIAMOND);
-  
-  mvprintw(4, 0, "snake height: %d",sp_position->height);
-  mvprintw(5, 0, "snake width: %d", sp_position->width);
-  refresh();
-  getch();
-
   while ((ch = getch())) { 
     {
+      create_food(stdscr, tp_border, fp_position);
+      create_body(stdscr, sp_position, tp_border, prev);
+      print_food(stdscr, fp_position);
       clear();
       /* start the game */
       refresh();
