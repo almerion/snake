@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#define DELAY 30000
+
 enum direction { UP, DOWN, LEFT, RIGHT};
 enum status {SUCCESS, FAILURE };
 
@@ -57,9 +59,9 @@ int main()
   sp_position->num_body = 2;
   initscr();
   cbreak(); /* pass everthing immediatelly */
-  keypad(stdscr, TRUE); /* when player press the keys we need to know that keys */ 
+  keypad(stdscr, true); /* when player press the keys we need to know that keys */ 
   noecho();
-  curs_set(FALSE);
+  curs_set(true);
 
   getmaxyx(stdscr, sp_position->height, sp_position->width); /* take the screen borders */
   
@@ -94,6 +96,7 @@ int main()
 	default:
 	  prev = prev;
 	} 
+      usleep(DELAY);
       create_body(stdscr, sp_position, tp_border, prev);
     }
   }
