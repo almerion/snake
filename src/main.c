@@ -7,7 +7,7 @@
 #define DELAY 30000
 
 enum direction { UP, DOWN, LEFT, RIGHT};
-enum status {SUCCESS, FAILURE };
+enum status {FAILURE, SUCCESS };
 
 typedef struct food_position {
 
@@ -39,17 +39,18 @@ SNAKE_POSITION* create_body(WINDOW *win, SNAKE_POSITION *sp_position, TERM_BORDE
 FOOD_POSITION* create_food(WINDOW *win, TERM_BORDER *tp_border, FOOD_POSITION *fp_position);
 void print_food(WINDOW *win, FOOD_POSITION *fp_position);
 void game_over(WINDOW *win, TERM_BORDER *tp_border, SCORE *scp);
+SNAKE_POSITION* print_body(WINDOW *win, SNAKE_POSITION *sp_position);
 
 int main()
 {
 
   int ch, i, k;
-  int cur_height1, cur_height2, cur_width1, cur_width2;
   SNAKE_POSITION *sp_position, s_position;
   FOOD_POSITION *fp_position, f_position;
   TERM_BORDER *tp_border, t_border;
   SCORE *scp, sc;
   enum direction prev = DOWN;
+  enum status status = SUCCESS;
 
   sp_position = &s_position;
   fp_position = &f_position;
@@ -68,37 +69,43 @@ int main()
   sp_position->height = rand_number(0, tp_border->height);
   sp_position->width = rand_number(0, tp_border->width);
 
+  create_food(stdscr, tp_border, fp_position);
+
   scp->score = 0;
-  while ((ch = getch())) { 
+  while (status) { 
     {
-      clear();
-      create_food(stdscr, tp_border, fp_position);
-      create_body(stdscr, sp_position, tp_border, prev);
-      print_food(stdscr, fp_position);
-      /* start the game */
-      refresh();
-      switch (ch)
+      while ((ch = getch()) == KEY_F(1))
 	{
-	case KEY_LEFT:
-	  if (prev != RIGHT)
-	    prev = LEFT;
+	  clear();
+	  print_body(stdscr, sp_position);
+	  create_body(stdscr, sp_position, tp_border, prev);
+	  print_food(stdscr, fp_position);
 	  
-	case KEY_RIGHT:
-	  if (prev != LEFT)
-	    prev = RIGHT;
-	  
-	case KEY_DOWN:
-	  if (prev != UP) 
-	    prev = DOWN;
-	  
-	case KEY_UP:
-	  if (prev != DOWN)
-	    prev = UP;
-	  
-	default:
-	  prev = prev;
-	} 
-      usleep(DELAY);
+	  /* start the game */
+	  refresh();
+	  switch (ch)
+	    {
+	    case KEY_LEFT:
+	      if (prev != RIGHT)
+		prev = LEFT;
+	      
+	    case KEY_RIGHT:
+	      if (prev != LEFT)
+		prev = RIGHT;
+	      
+	    case KEY_DOWN:
+	      if (prev != UP) 
+		prev = DOWN;
+	      
+	    case KEY_UP:
+	      if (prev != DOWN)
+		prev = UP;
+	      
+	    default:
+	      prev = prev;
+	    } 
+	  usleep(DELAY);
+	}
     }
   }
   
@@ -117,7 +124,14 @@ int rand_number(int min_num, int max_num)
 
   return rand_num;
 }
-
+ 
+SNAKE_POSITION* print_body(WINDOW *win, SNAKE_POSITION *sp_position)
+{
+  while (true)
+    {
+      mvwaddch(win, sp_position->height++, sp_position->width, ACS_BLOCK);
+    }
+}
 SNAKE_POSITION* create_body(WINDOW *win, SNAKE_POSITION *sp_position, TERM_BORDER *tp_border, enum direction dir)
 {
   int i = sp_position->num_body;
