@@ -71,7 +71,7 @@ int main()
 
   create_food(stdscr, tp_border, fp_position);
   scp->score = 0;
-  while (sp_position != 0) { 
+  while (sp_position->num_body != 0) { 
     {
       while ((ch = getch()) != KEY_F(1))
 	{
