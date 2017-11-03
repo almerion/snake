@@ -35,7 +35,7 @@ typedef struct _score {
 
 int rand_number(int min_num, int max_num);
 void add_body(WINDOW *win, int position_height, int position_width);
-SNAKE_POSITION* create_body(WINDOW *win, SNAKE_POSITION *sp_position, TERM_BORDER *tp_border, enum direction dir);
+SNAKE_POSITION* create_body(WINDOW *win, SNAKE_POSITION *sp_position, TERM_BORDER *tp_border, enum direction dir, SCORE *scp);
 FOOD_POSITION* create_food(WINDOW *win, TERM_BORDER *tp_border, FOOD_POSITION *fp_position);
 void print_food(WINDOW *win, FOOD_POSITION *fp_position);
 void game_over(WINDOW *win, TERM_BORDER *tp_border, SCORE *scp);
@@ -70,41 +70,33 @@ int main()
   sp_position->width = rand_number(0, tp_border->width);
 
   create_food(stdscr, tp_border, fp_position);
-
   scp->score = 0;
-  while (status) { 
+  while (sp_position != 0) { 
     {
-      while ((ch = getch()) == KEY_F(1))
+      while ((ch = getch()) != KEY_F(1))
 	{
 	  clear();
-	  print_body(stdscr, sp_position);
-	  create_body(stdscr, sp_position, tp_border, prev);
 	  print_food(stdscr, fp_position);
-	  
+	  create_body(stdscr, sp_position, tp_border, prev, scp);
 	  /* start the game */
 	  refresh();
-	  switch (ch)
-	    {
-	    case KEY_LEFT:
-	      if (prev != RIGHT)
-		prev = LEFT;
+	  if (ch == KEY_LEFT && prev != RIGHT) {
+	    prev = LEFT;
+	  }
+	  else if (ch == KEY_RIGHT && prev != LEFT) {
+	    prev = RIGHT;
+	  }
 	      
-	    case KEY_RIGHT:
-	      if (prev != LEFT)
-		prev = RIGHT;
+	  else if (ch == KEY_DOWN && prev != UP) {
+	    prev = DOWN;
+	  }
 	      
-	    case KEY_DOWN:
-	      if (prev != UP) 
-		prev = DOWN;
-	      
-	    case KEY_UP:
-	      if (prev != DOWN)
-		prev = UP;
-	      
-	    default:
-	      prev = prev;
-	    } 
-	  usleep(DELAY);
+	  else if (ch == KEY_UP && prev != DOWN) {
+	    prev = UP;
+	  }
+	  else {
+	    prev = prev;
+	  } 
 	}
     }
   }
@@ -124,36 +116,38 @@ int rand_number(int min_num, int max_num)
 
   return rand_num;
 }
- 
-SNAKE_POSITION* print_body(WINDOW *win, SNAKE_POSITION *sp_position)
-{
-  while (true)
-    {
-      mvwaddch(win, sp_position->height++, sp_position->width, ACS_BLOCK);
-    }
-}
-SNAKE_POSITION* create_body(WINDOW *win, SNAKE_POSITION *sp_position, TERM_BORDER *tp_border, enum direction dir)
+
+SNAKE_POSITION* create_body(WINDOW *win, SNAKE_POSITION *sp_position, TERM_BORDER *tp_border, enum direction dir, SCORE *scp)
 {
   int i = sp_position->num_body;
-  
-  while (i)
+  int height = sp_position->height;
+  int width = sp_position->width;
+
+  if (sp_position->height == tp_border->height|| sp_position->width == tp_border->width)
+    game_over(win, tp_border, scp);
+      
+  mvwprintw(win, 0, 0, "%d", i);
+  while (i != 0)
     {
+      wrefresh(win);
       switch (dir)
 	{
 	case LEFT:
-	  mvwaddch(win, sp_position->height--, sp_position->width, ACS_BLOCK);
+	  mvwaddch(win, height--, width, ACS_BLOCK);
 	case RIGHT:
-	  mvwaddch(win, sp_position->height++, sp_position->width, ACS_BLOCK);
+	  mvwaddch(win, height++, width, ACS_BLOCK);
 	case UP:
-	  mvwaddch(win, sp_position->height, sp_position->width--, ACS_BLOCK);
+	  mvwaddch(win, height, width--, ACS_BLOCK);
 	case DOWN:
-	  mvwaddch(win, sp_position->height, sp_position->width++, ACS_BLOCK);
+	  mvwaddch(win, height, width++, ACS_BLOCK);
 	default:
-	  mvwaddch(win, sp_position->height, sp_position->width, ACS_BLOCK);
+	  mvwaddch(win, height, width, ACS_BLOCK);
 	}
       i--;
       wrefresh(win);
     }
+  sp_position->height = height;
+  sp_position->width = width;
 
   return sp_position;
 }
