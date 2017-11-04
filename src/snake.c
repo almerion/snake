@@ -14,7 +14,7 @@ S_PST* create_body(WINDOW *win, S_PST *sp_pst, T_BRD *tp_brd, SCR *pscr, Directi
   int i = sp_pst->cbody;
   int height = sp_pst->height;
   int width = sp_pst->width;
-
+  
   if (sp_pst->height == tp_brd->height|| sp_pst->width == tp_brd->width)
     game_over(win, tp_brd, pscr);
       
@@ -41,6 +41,9 @@ S_PST* create_body(WINDOW *win, S_PST *sp_pst, T_BRD *tp_brd, SCR *pscr, Directi
       mvwprintw(win, 0, 0, "height = %d", height);
       mvwprintw(win, 1, 0, "width = %d", width);
     }
+
+  mvwprintw(win, 2, 0, "dir = %s", get_dir(dir));
+  
   i--;
   usleep(DELAY);
   wrefresh(win);
@@ -81,3 +84,22 @@ S_PST* create_snake(S_PST *sp_pst, T_BRD *tp_brd)
 
   return sp_pst;
 }
+
+const char* get_dir(Direction dir)
+{
+  
+  switch (dir)
+    {
+    case LEFT:
+      return "left";
+    case RIGHT:
+      return "right";
+    case UP:
+      return "up";
+    case DOWN:
+      return "down";
+    default:
+      return NULL;
+    }
+}
+

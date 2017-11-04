@@ -48,3 +48,4 @@ S_PST* create_body(WINDOW *win, S_PST *sp_pst, T_BRD *tp_brd, SCR *pscr, Directi
 F_PST* create_food(WINDOW *win, F_PST *fp_pst, T_BRD *tp_brd);
 void game_over(WINDOW *win, T_BRD *tp_brd, SCR *pscr);
 S_PST* create_snake(S_PST *sp_pst, T_BRD *tp_brd);
+const char* get_dir(Direction dir);
