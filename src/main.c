@@ -23,33 +23,9 @@ int main()
   keypad(stdscr, true);
 
   getmaxyx(stdscr, tp_brd->height, tp_brd->width);
-  
-  create_snake(sp_pst, tp_brd);
+
   create_food(stdscr, fp_pst, tp_brd);
-  
-  while (1)
-    {
-      while ((ch = getch() != KEY_F(1)))
-	{
-	  clear();
-	  switch (dir)
-	    {
-	    case KEY_LEFT:
-	      dir = LEFT;
-	    case KEY_RIGHT:
-	      dir = RIGHT;
-	    case KEY_UP:
-	      dir = UP;
-	    case KEY_DOWN:
-	      dir = DOWN;
-	    default:
-	      dir = dir;
-	    }
-	  create_body(stdscr, sp_pst, tp_brd, pscr, dir);
-	  refresh();
-	}
-    }
-  
+  create_body(stdscr, sp_pst, tp_brd, pscr, fp_pst, stat);
   return 0;
 }
 

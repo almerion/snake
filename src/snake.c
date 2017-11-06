@@ -9,47 +9,38 @@ int rand_number(int min_num, int max_num)
   return rand_num;
 }
 
-S_PST* create_body(WINDOW *win, S_PST *sp_pst, T_BRD *tp_brd, SCR *pscr, Direction dir)
+void print_body(WINDOW *win,S_PST *sp_pst)
 {
   int i = sp_pst->cbody;
-  int height = sp_pst->height;
-  int width = sp_pst->width;
-  
-  if (sp_pst->height == tp_brd->height|| sp_pst->width == tp_brd->width)
-    game_over(win, tp_brd, pscr);
-      
-  switch (dir)
+  while(i) {
+    mvwaddch(win, sp_pst->height, sp_pst->width, ACS_BLOCK);
+    i--;
+  }
+}
+
+
+S_PST* create_body(WINDOW *win, S_PST *sp_pst, T_BRD *tp_brd, SCR *pscr, F_PST *fp_pst, Status stat)
+{
+  int ch = 0;
+  while (true)
     {
-    case LEFT:
-      mvwaddch(win, height, width--, ACS_BLOCK);
-      mvwprintw(win, 0, 0, "height = %d", height);
-      mvwprintw(win, 1, 0, "width = %d", width);
-    case RIGHT:
-      mvwaddch(win, height, width++, ACS_BLOCK);
-      mvwprintw(win, 0, 0, "height = %d", height);
-      mvwprintw(win, 1, 0, "width = %d", width);
-    case UP:
-      mvwaddch(win, height, width--, ACS_BLOCK);
-      mvwprintw(win, 0, 0, "height = %d", height);
-      mvwprintw(win, 1, 0, "width = %d", width);
-    case DOWN:
-      mvwaddch(win, height++, width, ACS_BLOCK);
-      mvwprintw(win, 0, 0, "height = %d", height);
-      mvwprintw(win, 1, 0, "width = %d", width);
-    default:
-      mvwaddch(win, height--, width, ACS_BLOCK);
-      mvwprintw(win, 0, 0, "height = %d", height);
-      mvwprintw(win, 1, 0, "width = %d", width);
+      ch = getch();
+	  wclear(win);
+	  switch (ch)
+	    {
+	    case KEY_RIGHT:
+	      sp_pst->width++;
+	    case KEY_UP:
+	      sp_pst->height--;
+	    case KEY_DOWN:
+	      sp_pst->height++;
+	    case KEY_LEFT:
+	      sp_pst->width--;
+	    }
+	  print_body(win, sp_pst);
+
     }
 
-  mvwprintw(win, 2, 0, "dir = %s", get_dir(dir));
-  
-  i--;
-  usleep(DELAY);
-  wrefresh(win);
-
-  sp_pst->height = height;
-  sp_pst->width = width;
 
   return sp_pst;
 }
