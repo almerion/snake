@@ -14,5 +14,8 @@ Game is not working. If you find anything unsuitble, you can open an issue.
 
 ## INSTALLATION
 ---
-` $ gcc snake.h snake.c main.c -o snake -lncurses 
-  $ ./snake `
+
+```
+	$ gcc snake.h snake.c main.c -o snake -lncurses 
+	$ ./snake
+```
